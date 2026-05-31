@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMRS - Reservations</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/dashboard.css" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <div th:replace="~{fragments/sidebar :: sidebar('reservations')}"></div>
+
+        <div id="page-content-wrapper" class="w-100">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+                <div class="container-fluid">
+                    <span class="navbar-brand">Reservations</span>
+                    <button class="btn btn-success btn-sm" id="btn-add-res">
+                        <i class="bi bi-plus-lg me-1"></i>New Reservation
+                    </button>
+                </div>
+            </nav>
+
+            <div class="container-fluid p-4">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <form id="search-form" class="row g-2 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label small">Guest Name</label>
+                                <input type="text" class="form-control form-control-sm" id="search-guest" placeholder="Search by name...">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">Status</label>
+                                <select class="form-select form-select-sm" id="search-status">
+                                    <option value="">All</option>
+                                    <option value="PENDING">Pending</option>
+                                    <option value="CONFIRMED">Confirmed</option>
+                                    <option value="CHECKED_IN">Checked In</option>
+                                    <option value="CHECKED_OUT">Checked Out</option>
+                                    <option value="CANCELLED">Cancelled</option>
+                                    <option value="NO_SHOW">No Show</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">Room</label>
+                                <input type="text" class="form-control form-control-sm" id="search-room" placeholder="Room #">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">From</label>
+                                <input type="date" class="form-control form-control-sm" id="search-from">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">To</label>
+                                <input type="date" class="form-control form-control-sm" id="search-to">
+                            </div>
+                            <div class="col-md-1 d-flex gap-1">
+                                <button type="submit" class="btn btn-sm btn-primary" id="btn-search">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-clear-search" title="Clear filters">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Guest</th>
+                                        <th>Room</th>
+                                        <th>Check-In</th>
+                                        <th>Check-Out</th>
+                                        <th>Status</th>
+                                        <th>Channel</th>
+                                        <th>Rate</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="res-body">
+                                    <tr><td colspan="8" class="text-muted text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Modal -->
+    <div class="modal fade" id="resModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="resModalTitle">New Reservation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Guest *</label>
+                            <select class="form-select" id="res-guest" required></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Room *</label>
+                            <select class="form-select" id="res-room" required></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Check-In Date *</label>
+                            <input type="date" class="form-control" id="res-checkin" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Check-Out Date *</label>
+                            <input type="date" class="form-control" id="res-checkout" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Rate (₹) *</label>
+                            <input type="number" class="form-control" id="res-rate" step="0.01" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Channel</label>
+                            <select class="form-select" id="res-channel">
+                                <option value="DIRECT">Direct</option>
+                                <option value="BOOKING_COM">Booking.com</option>
+                                <option value="EXPEDIA">Expedia</option>
+                                <option value="AIRBNB">Airbnb</option>
+                                <option value="PHONE">Phone</option>
+                                <option value="WALK_IN">Walk-in</option>
+                                <option value="CORPORATE">Corporate</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Special Requests</label>
+                            <input type="text" class="form-control" id="res-requests">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" id="btn-save-res">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Cancel Reservation?</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">This will cancel the reservation.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">No</button>
+                    <button class="btn btn-danger btn-sm" id="btn-confirm-cancel">Yes, Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index:1090"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/reservations.js"></script>
+</body>
+</html>

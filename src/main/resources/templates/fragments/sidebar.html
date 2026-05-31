@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="sidebar(activePage)" class="sidebar d-flex flex-column flex-shrink-0 p-3">
+        <a href="/dashboard" class="d-flex align-items-center mb-3 text-white text-decoration-none">
+            <i class="bi bi-building me-2 fs-4"></i>
+            <span class="fs-5 fw-semibold">LMRS</span>
+        </a>
+        <hr class="text-secondary">
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+                <a href="/dashboard" class="nav-link text-white" th:classappend="${activePage == 'dashboard'} ? 'active'">
+                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/ai" class="nav-link text-white" th:classappend="${activePage == 'ai'} ? 'active'">
+                    <i class="bi bi-robot me-2"></i>AI Assistant
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/guests" class="nav-link text-white" th:classappend="${activePage == 'guests'} ? 'active'">
+                    <i class="bi bi-people me-2"></i>Guests
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/rooms" class="nav-link text-white" th:classappend="${activePage == 'rooms'} ? 'active'">
+                    <i class="bi bi-door-open me-2"></i>Rooms
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/reservations" class="nav-link text-white" th:classappend="${activePage == 'reservations'} ? 'active'">
+                    <i class="bi bi-calendar-check me-2"></i>Reservations
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/folios" class="nav-link text-white" th:classappend="${activePage == 'folios'} ? 'active'">
+                    <i class="bi bi-wallet2 me-2"></i>Folios
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/orders" class="nav-link text-white" th:classappend="${activePage == 'orders'} ? 'active'">
+                    <i class="bi bi-receipt me-2"></i>Orders
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/menu" class="nav-link text-white" th:classappend="${activePage == 'menu'} ? 'active'">
+                    <i class="bi bi-book me-2"></i>Menu
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/tables" class="nav-link text-white" th:classappend="${activePage == 'tables'} ? 'active'">
+                    <i class="bi bi-grid me-2"></i>Tables
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/table-reservations" class="nav-link text-white" th:classappend="${activePage == 'table-reservations'} ? 'active'">
+                    <i class="bi bi-bookmark-check me-2"></i>Table Reservations
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/housekeeping" class="nav-link text-white" th:classappend="${activePage == 'housekeeping'} ? 'active'">
+                    <i class="bi bi-brush me-2"></i>Housekeeping
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/inventory" class="nav-link text-white" th:classappend="${activePage == 'inventory'} ? 'active'">
+                    <i class="bi bi-box-seam me-2"></i>Inventory
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/users" class="nav-link text-white" th:classappend="${activePage == 'users'} ? 'active'">
+                    <i class="bi bi-person-gear me-2"></i>Users
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/reports" class="nav-link text-white" th:classappend="${activePage == 'reports'} ? 'active'">
+                    <i class="bi bi-bar-chart me-2"></i>Reports
+                </a>
+            </li>
+        </ul>
+        <hr class="text-secondary">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <a href="/dashboard/profile" class="nav-link text-white small" th:classappend="${activePage == 'profile'} ? 'active'">
+                <i class="bi bi-person-circle me-1"></i>Profile
+            </a>
+        </div>
+        <div class="d-flex align-items-center justify-content-between">
+            <div>
+                <span class="text-white small" id="sidebar-user-email"></span>
+                <span class="badge bg-secondary ms-1" id="sidebar-user-role"></span>
+            </div>
+            <button class="btn btn-sm btn-outline-light" id="btn-logout" title="Logout">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</body>
+</html>

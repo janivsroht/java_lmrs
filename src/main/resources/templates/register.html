@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMRS - Register</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background: #212529; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .register-card { max-width: 480px; width: 100%; border-radius: 1rem; box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
+        .register-header { background: #198754; color: #fff; padding: 1.5rem; border-radius: 1rem 1rem 0 0; text-align: center; }
+        .register-header i { font-size: 2.5rem; }
+        .form-control:focus { border-color: #198754; box-shadow: 0 0 0 0.2rem rgba(25,135,84,0.25); }
+    </style>
+</head>
+<body>
+    <div class="card register-card">
+        <div class="register-header">
+            <i class="bi bi-building"></i>
+            <h4 class="mt-2 mb-0">Create Account</h4>
+            <small class="opacity-75">LMRS Registration</small>
+        </div>
+        <div class="card-body p-4">
+            <div id="alert-box"></div>
+            <form id="register-form">
+                <div class="mb-3">
+                    <label class="form-label">Tenant ID</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-building"></i></span>
+                        <input type="text" class="form-control" id="tenantId" placeholder="Enter tenant ID" required>
+                    </div>
+                    <small class="text-muted">Ask your administrator for the tenant ID.</small>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="email" class="form-control" id="email" placeholder="user@hotel.com" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" class="form-control" id="password" placeholder="Min 6 characters" minlength="6" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Role</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                        <select class="form-select" id="role" required>
+                            <option value="FRONT_DESK">Front Desk</option>
+                        </select>
+                        <small class="text-muted">New accounts are registered as Front Desk staff.</small>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success w-100" id="btn-register">
+                    <i class="bi bi-person-plus me-1"></i>Create Account
+                </button>
+            </form>
+            <div class="text-center mt-3">
+                <a href="/login" class="text-decoration-none">Already have an account? Sign in</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        if (Auth.isAuthenticated()) window.location.href = '/dashboard';
+
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-register');
+            const alertBox = document.getElementById('alert-box');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Creating...';
+            alertBox.innerHTML = '';
+
+            const password = document.getElementById('password').value;
+
+            try {
+                const resp = await fetch('/api/v1/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tenantId: document.getElementById('tenantId').value.trim(),
+                        email: document.getElementById('email').value.trim(),
+                        password: password,
+                        role: document.getElementById('role').value
+                    })
+                });
+
+                const data = await resp.json();
+
+                if (!resp.ok) {
+                    alertBox.innerHTML = '<div class="alert alert-danger alert-dismissible fade show">' +
+                        (data.message || 'Registration failed') +
+                        '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
+                    return;
+                }
+
+                Auth.setTokens(data.accessToken, data.refreshToken);
+                Auth.setUser({ userId: data.userId, email: data.email, role: data.role, tenantId: data.tenantId });
+                window.location.href = '/dashboard';
+            } catch (err) {
+                alertBox.innerHTML = '<div class="alert alert-danger">Connection error. Please try again.</div>';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-person-plus me-1"></i>Create Account';
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

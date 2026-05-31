@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMRS - Reports</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/dashboard.css" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <div th:replace="~{fragments/sidebar :: sidebar('reports')}"></div>
+
+        <div id="page-content-wrapper" class="w-100">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+                <div class="container-fluid">
+                    <span class="navbar-brand">Reports</span>
+                </div>
+            </nav>
+
+            <div class="container-fluid p-4">
+                <!-- Revenue Report -->
+                <div class="card mb-4">
+                    <div class="card-header">Revenue Report</div>
+                    <div class="card-body">
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-3">
+                                <label class="form-label">From</label>
+                                <input type="date" class="form-control form-control-sm" id="rev-from">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">To</label>
+                                <input type="date" class="form-control form-control-sm" id="rev-to">
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end gap-1">
+                                <button class="btn btn-sm btn-primary" id="btn-rev">Generate</button>
+                                <button class="btn btn-sm btn-outline-success" id="btn-rev-csv"><i class="bi bi-download me-1"></i>CSV</button>
+                            </div>
+                        </div>
+                        <div style="height:250px"><canvas id="revChart"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Occupancy -->
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">Occupancy</div>
+                            <div class="card-body" id="occupancy-data">Loading...</div>
+                        </div>
+                    </div>
+
+                    <!-- Bookings by Channel -->
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">Bookings by Channel</div>
+                            <div class="card-body">
+                                <div style="height:200px"><canvas id="channelChart"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Housekeeping -->
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">Housekeeping Summary</div>
+                            <div class="card-body" id="hk-data">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mt-2">
+                    <!-- Top Menu Items -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">Top Menu Items</div>
+                            <div class="card-body">
+                                <div style="height:250px"><canvas id="menuChart"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Low Stock -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">Low Stock Alerts</div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead><tr><th>Item</th><th>Unit</th><th>Stock</th><th>Threshold</th></tr></thead>
+                                        <tbody id="low-stock-body"><tr><td colspan="4" class="text-muted">Loading...</td></tr></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/reports.js"></script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMRS Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/dashboard.css" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <div th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></div>
+
+        <div id="page-content-wrapper" class="w-100">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+                <div class="container-fluid">
+                    <span class="navbar-brand">Dashboard</span>
+                </div>
+            </nav>
+
+            <div class="container-fluid p-4">
+                <div class="row g-3" id="kpi-row">
+                    <div class="col-md-2 col-6">
+                        <div class="card kpi-card bg-primary text-white">
+                            <div class="card-body">
+                                <h6 class="card-title">Total Guests</h6>
+                                <h2 class="mb-0" id="kpi-guests">-</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="card kpi-card bg-success text-white">
+                            <div class="card-body">
+                                <h6 class="card-title">Total Rooms</h6>
+                                <h2 class="mb-0" id="kpi-rooms">-</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="card kpi-card bg-info text-white">
+                            <div class="card-body">
+                                <h6 class="card-title">Checked In</h6>
+                                <h2 class="mb-0" id="kpi-active">-</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="card kpi-card bg-warning text-dark">
+                            <div class="card-body">
+                                <h6 class="card-title">Occupancy</h6>
+                                <h2 class="mb-0" id="kpi-occupancy">-</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="card kpi-card bg-danger text-white">
+                            <div class="card-body">
+                                <h6 class="card-title">Revenue</h6>
+                                <h2 class="mb-0" id="kpi-revenue">-</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="card kpi-card bg-secondary text-white">
+                            <div class="card-body">
+                                <h6 class="card-title">Pending HK</h6>
+                                <h2 class="mb-0" id="kpi-hk">-</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">Revenue Trend (Last 30 Days)</div>
+                            <div class="card-body">
+                                <canvas id="revenueChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">Reservation Status</div>
+                            <div class="card-body">
+                                <canvas id="reservationChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">Booking Channels</div>
+                            <div class="card-body">
+                                <canvas id="channelChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">Room Status</div>
+                            <div class="card-body">
+                                <canvas id="roomStatusChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">Rooms by Type</div>
+                            <div class="card-body">
+                                <canvas id="roomTypeChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">Top Menu Items</div>
+                            <div class="card-body">
+                                <canvas id="menuChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">Housekeeping Status</div>
+                            <div class="card-body">
+                                <canvas id="hkChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between">
+                                <span>Low Stock Alerts</span>
+                                <span class="badge bg-danger" id="low-stock-count">0</span>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm" id="low-stock-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Unit</th>
+                                            <th>Current Stock</th>
+                                            <th>Reorder At</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="low-stock-body">
+                                        <tr><td colspan="4" class="text-muted">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/dashboard.js"></script>
+</body>
+</html>

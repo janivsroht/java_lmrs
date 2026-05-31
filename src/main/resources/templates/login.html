@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMRS - Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background: #212529; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-card { max-width: 420px; width: 100%; border-radius: 1rem; box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
+        .login-header { background: #0d6efd; color: #fff; padding: 1.5rem; border-radius: 1rem 1rem 0 0; text-align: center; }
+        .login-header i { font-size: 2.5rem; }
+        .form-control:focus { border-color: #0d6efd; box-shadow: 0 0 0 0.2rem rgba(13,110,253,0.25); }
+    </style>
+</head>
+<body>
+    <div class="card login-card">
+        <div class="login-header">
+            <i class="bi bi-building"></i>
+            <h4 class="mt-2 mb-0">LMRS</h4>
+            <small class="opacity-75">Luxury Management & Reservation System</small>
+        </div>
+        <div class="card-body p-4">
+            <div id="alert-box"></div>
+            <form id="login-form">
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="email" class="form-control" id="email" placeholder="admin@hotel.com" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" class="form-control" id="password" placeholder="Enter password" required>
+                        <button class="btn btn-outline-secondary" type="button" id="toggle-pw">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100" id="btn-login">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+                </button>
+            </form>
+            <div class="text-center mt-3">
+                <a href="/register" class="text-decoration-none">Create an account</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        // Redirect if already logged in
+        if (Auth.isAuthenticated()) window.location.href = '/dashboard';
+
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-login');
+            const alertBox = document.getElementById('alert-box');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Signing in...';
+            alertBox.innerHTML = '';
+
+            try {
+                const resp = await fetch('/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value.trim(),
+                        password: document.getElementById('password').value
+                    })
+                });
+
+                const data = await resp.json();
+
+                if (!resp.ok) {
+                    alertBox.innerHTML = '<div class="alert alert-danger alert-dismissible fade show">' +
+                        (data.message || 'Invalid email or password') +
+                        '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
+                    return;
+                }
+
+                Auth.setTokens(data.accessToken, data.refreshToken);
+                Auth.setUser({ userId: data.userId, email: data.email, role: data.role, tenantId: data.tenantId });
+                window.location.href = '/dashboard';
+            } catch (err) {
+                alertBox.innerHTML = '<div class="alert alert-danger">Connection error. Please try again.</div>';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>Sign In';
+            }
+        });
+
+        document.getElementById('toggle-pw').addEventListener('click', function() {
+            const pw = document.getElementById('password');
+            const icon = this.querySelector('i');
+            if (pw.type === 'password') { pw.type = 'text'; icon.className = 'bi bi-eye-slash'; }
+            else { pw.type = 'password'; icon.className = 'bi bi-eye'; }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
