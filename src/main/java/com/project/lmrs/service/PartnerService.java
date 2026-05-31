@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+
 @Service
 @RequiredArgsConstructor
 public class PartnerService {
@@ -30,6 +33,7 @@ public class PartnerService {
     private final TableReservationRepository tableReservationRepository;
     private final PartnerApiUsageRepository partnerApiUsageRepository;
     private final PartnerAccountRepository partnerAccountRepository;
+    private final TenantRepository tenantRepository;
 
     // ── LISTING ──────────────────────────────────────────────────────
 
@@ -79,6 +83,23 @@ public class PartnerService {
                     .build();
             })
             .collect(Collectors.toList());
+    }
+
+    public List<PartnerReservationResponse> listPartnerReservations(String tenantId) {
+        return reservationRepository
+            .findAllByTenant_TenantIdAndIsDeletedFalse(tenantId,
+                PageRequest.of(0, Integer.MAX_VALUE, Sort.by(Sort.Direction.DESC, "checkInDate")))
+            .getContent()
+            .stream()
+            .map(this::toReservationResponse)
+            .collect(Collectors.toList());
+    }
+
+    public PartnerReservationResponse getPartnerReservation(String reservationId, String tenantId) {
+        Reservation res = reservationRepository
+            .findByReservationIdAndTenant_TenantIdAndIsDeletedFalse(reservationId, tenantId)
+            .orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", reservationId));
+        return toReservationResponse(res);
     }
 
     // ── ROOM RESERVATIONS ─────────────────────────────────────────────
@@ -262,10 +283,32 @@ public class PartnerService {
             .build();
     }
 
+    // ── ADMIN: LIST PARTNERS ──────────────────────────────────────────
+
+    public List<PartnerAccount> listPartners(String tenantId) {
+        return partnerAccountRepository.findAllByTenant_TenantIdAndIsDeletedFalse(tenantId);
+    }
+
+    public PartnerAccount getPartnerAccount(String partnerId, String tenantId) {
+        PartnerAccount partner = partnerAccountRepository.findById(partnerId)
+            .orElseThrow(() -> new ResourceNotFoundException("PartnerAccount", "id", partnerId));
+        validateTenantOwnership(partner.getTenant().getTenantId(), tenantId);
+        return partner;
+    }
+
+    @Transactional
+    public void togglePartnerStatus(String partnerId, boolean isActive, String tenantId) {
+        PartnerAccount partner = getPartnerAccount(partnerId, tenantId);
+        partner.setActive(isActive);
+        partnerAccountRepository.save(partner);
+    }
+
     // ── PARTNER ACCOUNT CREATION ──────────────────────────────────────
 
     @Transactional
-    public PartnerAccount createPartner(String name, String providerType, Tenant tenant) {
+    public PartnerAccount createPartner(String name, String providerType, String tenantId) {
+        Tenant tenant = tenantRepository.findById(tenantId)
+            .orElseThrow(() -> new ResourceNotFoundException("Tenant", "id", tenantId));
         String apiKey = "lrms_" + UUID.randomUUID().toString().replace("-", "");
         return partnerAccountRepository.save(PartnerAccount.builder()
             .tenant(tenant)

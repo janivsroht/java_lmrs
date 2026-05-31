@@ -36,6 +36,7 @@ public class DataInitializer implements CommandLineRunner {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final TableReservationRepository tableReservationRepository;
+    private final PartnerAccountRepository partnerAccountRepository;
     private final PasswordEncoder passwordEncoder;
 
     private static final String DEFAULT_TENANT_SUBDOMAIN = "grand-horizon";
@@ -49,6 +50,7 @@ public class DataInitializer implements CommandLineRunner {
         seedMenu(tenant);
         seedTables(tenant);
         seedInventory(tenant);
+        seedPartnerAccounts(tenant);
         seedOperationalData(tenant);
     }
 
@@ -363,6 +365,33 @@ public class DataInitializer implements CommandLineRunner {
                         .build());
                 log.info("  Created inventory item: {}", item.name());
             }
+        }
+    }
+
+    private void seedPartnerAccounts(Tenant tenant) {
+        Set<String> existing = partnerAccountRepository.findAllByTenant_TenantIdAndIsDeletedFalse(tenant.getTenantId())
+                .stream().map(PartnerAccount::getName).collect(Collectors.toSet());
+
+        if (!existing.contains("Booking.com Partner")) {
+            partnerAccountRepository.save(PartnerAccount.builder()
+                    .tenant(tenant).name("Booking.com Partner")
+                    .providerType("BOOKING_COM").apiKey("lrms_partner_booking_com_001")
+                    .isActive(true).build());
+            log.info("  Created partner: Booking.com Partner");
+        }
+        if (!existing.contains("Expedia Partner")) {
+            partnerAccountRepository.save(PartnerAccount.builder()
+                    .tenant(tenant).name("Expedia Partner")
+                    .providerType("EXPEDIA").apiKey("lrms_partner_expedia_001")
+                    .isActive(true).build());
+            log.info("  Created partner: Expedia Partner");
+        }
+        if (!existing.contains("Direct Connect Partner")) {
+            partnerAccountRepository.save(PartnerAccount.builder()
+                    .tenant(tenant).name("Direct Connect Partner")
+                    .providerType("CUSTOM").apiKey("lrms_partner_direct_001")
+                    .isActive(true).build());
+            log.info("  Created partner: Direct Connect Partner");
         }
     }
 

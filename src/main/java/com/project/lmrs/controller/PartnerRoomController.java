@@ -31,6 +31,21 @@ public class PartnerRoomController {
         return ResponseEntity.ok(partnerService.listAvailableRooms(tenantId));
     }
 
+    @GetMapping("/reservations")
+    public ResponseEntity<List<PartnerReservationResponse>> listReservations(
+            HttpServletRequest request) {
+        String tenantId = (String) request.getAttribute("tenantId");
+        return ResponseEntity.ok(partnerService.listPartnerReservations(tenantId));
+    }
+
+    @GetMapping("/reservations/{reservationId}")
+    public ResponseEntity<PartnerReservationResponse> getReservation(
+            @PathVariable String reservationId,
+            HttpServletRequest request) {
+        String tenantId = (String) request.getAttribute("tenantId");
+        return ResponseEntity.ok(partnerService.getPartnerReservation(reservationId, tenantId));
+    }
+
     @PostMapping("/reservations")
     public ResponseEntity<PartnerReservationResponse> createReservation(
             @Valid @RequestBody PartnerReservationRequest body,
